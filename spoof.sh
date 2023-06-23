@@ -7,12 +7,22 @@ export LC_CTYPE=C
 
 basedir=$(dirname "$0")
 
-# Spoof computer name
-#mac_address_suffix=$(openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//')
-mac_prefix="50-"
+while true; do
+  prefix=$(printf "%02x" $(( RANDOM % 128 )))
+
+  even_prefix=$((16#${prefix}%2))
+  if [[ $even_prefix -eq 0 ]]; then
+    break
+  fi
+done
+
+mac_prefix="${prefix}-"
+mac_prefix=$(echo $mac_prefix | tr '[:lower:]' '[:upper:]')
+
 rand=$(openssl rand -hex 5 | sed 's/\(..\)/\1-/g; s/.$//' | tr '[:lower:]' '[:upper:]')
-host_name="$mac_prefix$rand"
-#host_name=$(echo $computer_name | sed -e 's/’//g' | sed -e 's/ /-/g')
+
+host_name="${mac_prefix}${rand}"
+
 computer_name=$(echo $host_name | tr '-' ':')
 echo $computer_name
 echo $host_name
